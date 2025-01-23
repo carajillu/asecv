@@ -2,19 +2,22 @@ import pymp
 from ase import Atoms
 from mace.calculators import MACECalculator
 import numpy as np
+
 class MACE_dist(Atoms):
     def __init__(self,atoms:Atoms,calculator:MACECalculator,indices:list,e0s:list):
         super().__init__()
         #mandatory stuff for any CV
         self.atoms = atoms # atoms object
         self.indices = indices # list of indices of the atoms to be used in the CV
-        self.cv = 0 # MACE distance CV
+        self.cv = 0 # initial value of the CV
         self.dx = pymp.shared.array(len(self.indices)) # derivatives of the MACE distance CV with respect to x-coordinates
         self.dy = pymp.shared.array(len(self.indices)) # derivatives of the MACE distance CV with respect to y-coordinates
         self.dz = pymp.shared.array(len(self.indices)) # derivatives of the MACE distance CV with respect to z-coordinates
+        
         #specific stuff for this CV
         self.e0s = e0s # list of reference atomic energy values
         self.ediffs = pymp.shared.array(len(self.indices)) # list of per-atom energy differences
+        assert len(self.indices)==len(self.e0s), "The number of indices and the number of reference energies must be the same."
         self.atoms.calc = calculator
         assert isinstance(self.atoms.calc, MACECalculator), "This CV can only be used with MACE calculators."
         self.atoms.get_potential_energy() # run the calculator when you init the CV
