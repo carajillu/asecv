@@ -1,0 +1,2 @@
+!#/bin/bash
+python bias_mace_descriptors.py -i xyz/CH3Br.xyz -r CH3Cl.xyz -a 0 1 2 -r0 0. -k 100 -m https://github.com/ACEsuit/mace-off/blob/main/mace_off23/MACE-OFF23_small.model
