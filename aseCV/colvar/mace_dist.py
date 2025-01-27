@@ -48,6 +48,7 @@ class MACE_dist(Atoms):
     def print_cv(self):
         self.cv_calc()
         print(f"MACE distance CV: {self.cv}")
+        print(f"Distances by atom: {self.ediffs}")
         print(f"MACE distance CV derivatives, with respect to x-coordinates: {self.dx}")
         print(f"MACE distance CV derivatives, with respect to y-coordinates: {self.dy}")
         print(f"MACE distance CV derivatives, with respect to z-coordinates: {self.dz}")
