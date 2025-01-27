@@ -28,6 +28,6 @@ class CustomCalculator(Calculator):
         # Modify forces with the bias
         if "forces" in self.results:
             for i in range(len(self.cv.indices)):
-                self.results["forces"][self.cv.indices[i]] += self.bias.bias_forces_x[i]
-                self.results["forces"][self.cv.indices[i]] += self.bias.bias_forces_y[i]
-                self.results["forces"][self.cv.indices[i]] += self.bias.bias_forces_z[i]
+                self.results["forces"][self.cv.indices[i]][0] += self.bias.bias_forces_x[i]
+                self.results["forces"][self.cv.indices[i]][1] += self.bias.bias_forces_y[i]
+                self.results["forces"][self.cv.indices[i]][2] += self.bias.bias_forces_z[i]
