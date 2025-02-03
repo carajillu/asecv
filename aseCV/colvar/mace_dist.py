@@ -1,4 +1,3 @@
-import pymp
 from ase import Atoms
 from mace.calculators import MACECalculator
 import numpy as np
@@ -10,22 +9,21 @@ class MACE_dist(Atoms):
         self.atoms = atoms # atoms object
         self.indices = indices # list of indices of the atoms to be used in the CV
         self.value = 0 # initial value of the CV
-        self.dx = pymp.shared.array(len(self.indices)) # derivatives of the MACE distance CV with respect to x-coordinates
-        self.dy = pymp.shared.array(len(self.indices)) # derivatives of the MACE distance CV with respect to y-coordinates
-        self.dz = pymp.shared.array(len(self.indices)) # derivatives of the MACE distance CV with respect to z-coordinates
+        self.dx = np.zeros(len(self.indices)) # derivatives of the MACE distance CV with respect to x-coordinates
+        self.dy = np.zeros(len(self.indices)) # derivatives of the MACE distance CV with respect to y-coordinates
+        self.dz = np.zeros(len(self.indices)) # derivatives of the MACE distance CV with respect to z-coordinates
         
         #specific stuff for this CV
+        self.calc=calculator
+        self.results = {} # dictionary of results from the base calculator
         self.e0s = e0s # list of reference atomic energy values
-        self.ediffs = pymp.shared.array(len(self.indices)) # list of per-atom energy differences
+        self.ediffs = np.zeros(len(self.indices)) # list of per-atom energy differences
         assert len(self.indices)==len(self.e0s), "The number of indices and the number of reference energies must be the same."
-        self.atoms.calc = calculator
-        assert isinstance(self.atoms.calc, MACECalculator), "This CV can only be used with MACE calculators."
-        self.atoms.get_potential_energy() # run the calculator when you init the CV
+        assert isinstance(self.calc, MACECalculator), "This CV can only be used with MACE calculators."
     
     def get_ediffs(self):
-        with pymp.Parallel() as p:
-            for i in p.range(len(self.indices)):
-                self.ediffs[i] = self.atoms.calc.results["node_energy"][self.indices[i]] - self.e0s[i]
+        for i in range(len(self.indices)):
+            self.ediffs[i] = self.results["node_energy"][self.indices[i]] - self.e0s[i]
         return self.ediffs
     
     def get_cv(self):
@@ -33,17 +31,24 @@ class MACE_dist(Atoms):
         return self.value
     
     def get_derivatives(self):
-        with pymp.Parallel() as p:
-            for i in p.range(len(self.indices)):
-                self.dx[i] =  -self.ediffs[i]/self.value*self.atoms.calc.results["forces"][self.indices[i]][0]
-                self.dy[i] =  -self.ediffs[i]/self.value*self.atoms.calc.results["forces"][self.indices[i]][1]
-                self.dz[i] =  -self.ediffs[i]/self.value*self.atoms.calc.results["forces"][self.indices[i]][2]
+        for i in range(len(self.indices)):
+            self.dx[i] =  -self.ediffs[i]/self.value*self.results["forces"][self.indices[i]][0]
+            self.dy[i] =  -self.ediffs[i]/self.value*self.results["forces"][self.indices[i]][1]
+            self.dz[i] =  -self.ediffs[i]/self.value*self.results["forces"][self.indices[i]][2]
         return self.dx, self.dy, self.dz
     
     def cv_calc(self):
+        print("--------------------------- Calculating MACE distance CV ---------------------------")
+        input("getting results dictionary")
+        self.calc.calculate(self.atoms)
+        self.results = self.calc.results.copy()
+        input("getting energy differences")
         self.get_ediffs()
+        input("getting CV")
         self.get_cv()
+        input("getting derivatives")
         self.get_derivatives()
+        print("--------------------------- MACE distance CV calculated ---------------------------")
     
     def print_cv(self):
         self.cv_calc()
