@@ -38,17 +38,17 @@ class MACE_dist(Atoms):
         return self.dx, self.dy, self.dz
     
     def cv_calc(self):
-        print("--------------------------- Calculating MACE distance CV ---------------------------")
-        input("getting results dictionary")
+        #print("--------------------------- Calculating MACE distance CV ---------------------------")
+        #input("getting results dictionary")
         self.calc.calculate(self.atoms)
         self.results = self.calc.results.copy()
-        input("getting energy differences")
+        #input("getting energy differences")
         self.get_ediffs()
-        input("getting CV")
+        #input("getting CV")
         self.get_cv()
-        input("getting derivatives")
+        #input("getting derivatives")
         self.get_derivatives()
-        print("--------------------------- MACE distance CV calculated ---------------------------")
+        #print("--------------------------- MACE distance CV calculated ---------------------------")
     
     def print_cv(self):
         self.cv_calc()
