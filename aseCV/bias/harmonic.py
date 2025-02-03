@@ -15,15 +15,15 @@ class Harmonic:
     
     def get_bias(self):
         self.cv.cv_calc()
-        self.bias = 0.5*self.k*(self.cv.cv - self.x0)**2
+        self.bias = 0.5*self.k*(self.cv.value - self.x0)**2
         return self.bias
     
     def get_bias_forces(self):
         with pymp.Parallel() as p:
             for i in range(len(self.cv.indices)):
-                self.bias_forces_x[i] = -self.k*(self.cv.cv - self.x0)*self.cv.dx[i]
-                self.bias_forces_y[i] = -self.k*(self.cv.cv - self.x0)*self.cv.dy[i]
-                self.bias_forces_z[i] = -self.k*(self.cv.cv - self.x0)*self.cv.dz[i]
+                self.bias_forces_x[i] = -self.k*(self.cv.value - self.x0)*self.cv.dx[i]
+                self.bias_forces_y[i] = -self.k*(self.cv.value - self.x0)*self.cv.dy[i]
+                self.bias_forces_z[i] = -self.k*(self.cv.value - self.x0)*self.cv.dz[i]
         return self.bias_forces_x, self.bias_forces_y, self.bias_forces_z
     
     def bias_calc(self):

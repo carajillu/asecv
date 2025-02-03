@@ -9,7 +9,7 @@ class MACE_dist(Atoms):
         #mandatory stuff for any CV
         self.atoms = atoms # atoms object
         self.indices = indices # list of indices of the atoms to be used in the CV
-        self.cv = 0 # initial value of the CV
+        self.value = 0 # initial value of the CV
         self.dx = pymp.shared.array(len(self.indices)) # derivatives of the MACE distance CV with respect to x-coordinates
         self.dy = pymp.shared.array(len(self.indices)) # derivatives of the MACE distance CV with respect to y-coordinates
         self.dz = pymp.shared.array(len(self.indices)) # derivatives of the MACE distance CV with respect to z-coordinates
@@ -29,15 +29,15 @@ class MACE_dist(Atoms):
         return self.ediffs
     
     def get_cv(self):
-        self.cv = np.sqrt(np.sum(self.ediffs**2))
-        return self.cv
+        self.value = np.sqrt(np.sum(self.ediffs**2))
+        return self.value
     
     def get_derivatives(self):
         with pymp.Parallel() as p:
             for i in p.range(len(self.indices)):
-                self.dx[i] =  -self.ediffs[i]/self.cv*self.atoms.calc.results["forces"][self.indices[i]][0]
-                self.dy[i] =  -self.ediffs[i]/self.cv*self.atoms.calc.results["forces"][self.indices[i]][1]
-                self.dz[i] =  -self.ediffs[i]/self.cv*self.atoms.calc.results["forces"][self.indices[i]][2]
+                self.dx[i] =  -self.ediffs[i]/self.value*self.atoms.calc.results["forces"][self.indices[i]][0]
+                self.dy[i] =  -self.ediffs[i]/self.value*self.atoms.calc.results["forces"][self.indices[i]][1]
+                self.dz[i] =  -self.ediffs[i]/self.value*self.atoms.calc.results["forces"][self.indices[i]][2]
         return self.dx, self.dy, self.dz
     
     def cv_calc(self):
@@ -47,7 +47,7 @@ class MACE_dist(Atoms):
     
     def print_cv(self):
         self.cv_calc()
-        print(f"MACE distance CV: {self.cv}")
+        print(f"MACE distance CV: {self.value}")
         print(f"Distances by atom: {self.ediffs}")
         print(f"MACE distance CV derivatives, with respect to x-coordinates: {self.dx}")
         print(f"MACE distance CV derivatives, with respect to y-coordinates: {self.dy}")
