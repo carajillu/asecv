@@ -1,5 +1,4 @@
 import numpy as np
-import pymp
 from ase import Atoms
 
 
@@ -9,9 +8,9 @@ class Harmonic:
         self.k = k
         self.x0 = x0
         self.bias = 0.0
-        self.bias_forces_x = pymp.shared.array(len(self.cv.indices))
-        self.bias_forces_y = pymp.shared.array(len(self.cv.indices))
-        self.bias_forces_z = pymp.shared.array(len(self.cv.indices))
+        self.bias_forces_x = np.zeros(len(self.cv.indices))
+        self.bias_forces_y = np.zeros(len(self.cv.indices))
+        self.bias_forces_z = np.zeros(len(self.cv.indices))
     
     def get_bias(self):
         self.cv.cv_calc()
@@ -19,11 +18,10 @@ class Harmonic:
         return self.bias
     
     def get_bias_forces(self):
-        with pymp.Parallel() as p:
-            for i in range(len(self.cv.indices)):
-                self.bias_forces_x[i] = -self.k*(self.cv.value - self.x0)*self.cv.dx[i]
-                self.bias_forces_y[i] = -self.k*(self.cv.value - self.x0)*self.cv.dy[i]
-                self.bias_forces_z[i] = -self.k*(self.cv.value - self.x0)*self.cv.dz[i]
+        for i in range(len(self.cv.indices)):
+            self.bias_forces_x[i] = -self.k*(self.cv.value - self.x0)*self.cv.dx[i]
+            self.bias_forces_y[i] = -self.k*(self.cv.value - self.x0)*self.cv.dy[i]
+            self.bias_forces_z[i] = -self.k*(self.cv.value - self.x0)*self.cv.dz[i]
         return self.bias_forces_x, self.bias_forces_y, self.bias_forces_z
     
     def bias_calc(self):
