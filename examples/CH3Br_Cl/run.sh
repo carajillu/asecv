@@ -1,1 +1,1 @@
-python bias_mace_descriptors.py -i xyz/CH3Br.xyz -r xyz/CH3Cl.xyz -a 0 1 2 3 -r0 0. -k 100
+python bias_mace_descriptors.py -i ../xyz/CH3Br.xyz -r ../xyz/CH3Cl.xyz -a 0 1 2 3 -r0 0. -k 100
